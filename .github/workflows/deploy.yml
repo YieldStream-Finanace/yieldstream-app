@@ -25,13 +25,22 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm"
 
       - name: Install Dependencies
-        run: npm install
+        run: |
+          if [ -d "apps/web" ]; then
+            cd apps/web && npm install
+          else
+            npm install
+          fi
 
-      - name: Build Static Site
-        run: npm run build
+      - name: Build Next.js Static Site
+        run: |
+          if [ -d "apps/web" ]; then
+            cd apps/web && npm run build
+          else
+            npm run build
+          fi
 
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
@@ -39,7 +48,7 @@ jobs:
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./out
+          path: ${{ hashFiles('apps/web/out') != '' && './apps/web/out' || './out' }}
 
       - name: Deploy to GitHub Pages
         id: deployment
