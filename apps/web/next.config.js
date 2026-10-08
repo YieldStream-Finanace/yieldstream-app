@@ -1,14 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'export',
+  basePath: '/yieldstream-app',
   images: {
     unoptimized: true,
   },
   typescript: {
-    ignoreBuildErrors: true, // Prevents strict type check failures on CI
+    ignoreBuildErrors: true,
   },
   eslint: {
-    ignoreDuringBuilds: true, // Prevents lint warnings from blocking build
+    ignoreDuringBuilds: true,
   },
 };
 
