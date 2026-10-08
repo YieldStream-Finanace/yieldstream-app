@@ -1,0 +1,37 @@
+# Dependencies (crucial for preventing 100MB+ binary push errors)
+node_modules/
+**/node_modules/
+
+# Next.js build outputs
+.next/
+**/out/
+**/build/
+**/dist/
+
+# Local Environment & Secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+**/.env.local
+
+# Turbo / Monorepo cache
+.turbo/
+**/.turbo/
+
+# Generated client packages & WASM binaries
+packages/yieldstream-client/dist/
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.swp
+
+# OS files & Logs
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
