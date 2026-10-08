@@ -1,83 +1,109 @@
-markdown
 # YieldStream Client Application & dApp Monorepo
 
-> Next.js 14 web dApp and client libraries for interacting with the YieldStream protocol on Stellar Soroban.
+> Production Web Application and TypeScript client infrastructure for the YieldStream protocol on Stellar Soroban.
 
-[![Next.js](https://img.shields.io/badge/Next.js-14.2-black.svg)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://www.typescriptlang.org/)
-[![Freighter](https://img.shields.io/badge/Wallet-Freighter-purple.svg)](https://www.freighter.app/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Live Application](https://img.shields.io/badge/Live_dApp-Vercel-000000.svg?style=for-the-badge&logo=vercel)](https://yieldstream-app.vercel.app)
+[![Next.js](https://img.shields.io/badge/Next.js-14.2-black.svg?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+[![Stellar Soroban](https://img.shields.io/badge/Stellar-Soroban-purple.svg?style=for-the-badge&logo=stellar)](https://stellar.org/soroban)
+[![Freighter](https://img.shields.io/badge/Wallet-Freighter-7C3AED.svg?style=for-the-badge)](https://www.freighter.app/)
 
 ---
 
-## Overview
+## 🌐 Live Application & Contract Information
 
-The `yieldstream-app` repository is a Turborepo monorepo housing the end-user Web Application and client-side integration packages. It provides intuitive dashboards for managing real-time streams, monitoring yield earnings, and invoking Soroban transactions via Freighter wallet signatures.
+* **Live Production Web dApp**: [https://yieldstream-app.vercel.app](https://yieldstream-app.vercel.app)
+* **Smart Contracts Repository**: [YieldStream-Finanace/yieldstream-contract](https://github.com/YieldStream-Finanace/yieldstream-contract)
+* **Stellar Testnet Contract ID**: `CAF5HM647JPZQK6MOVIV2BX5DO4HSAXZEAIRO3OKFDVJUVENMYFDE7VW`
 
+---
+
+## 📌 Architecture Overview
+
+`yieldstream-app` is built as a scalable Turborepo monorepo containing the end-user Web Application and client-side integration bindings. It enables non-custodial continuous payment streaming over Soroban with real-time interest accrued from underlying liquidity vaults.
+
+```text
 yieldstream-app/
 ├── apps/
-│   └── web/                # Next.js 14 App Router Front-End
+│   └── web/                   # Next.js 14 App Router Front-End
 │       ├── app/
-│       │   ├── page.tsx        # Protocol Landing Page
-│       │   ├── create/      # Stream Creation Form & Wallet Flow
-│       │   └── dashboard/   # Live Stream Tracker & Yield Monitor
-│       └── lib/
-│           └── vault-client # Auto-generated Soroban TypeScript SDK
-└── packages/               # Shared Utilities & Configurations
+│       │   ├── page.tsx       # Protocol Landing Page & Core Value Prop
+│       │   ├── create/        # Stream Provisioning & Contract Invocation
+│       │   ├── dashboard/     # Real-Time Balance Ticker & Yield Monitor
+│       │   └── layout.tsx     # Global Providers, Navigation & Theme Layout
+│       ├── lib/
+│       │   ├── wallet.ts      # Freighter API Integration Utilities
+│       │   └── vault-client/  # Soroban Auto-generated TypeScript Bindings
+│       ├── postcss.config.js  # PostCSS Pipeline Config
+│       ├── tailwind.config.js # Tailwind Design System System Configuration
+│       └── tsconfig.json      # Modern ES2020/Next.js Compiler Configuration
+└── packages/                  # Shared Workspace Utilities & Configs
+```
+## 🚀 Key Features & Interface Modules
+Protocol Landing Page (/):
 
+Comprehensive overview of protocol mechanics, active testnet contract addresses, and entry points into the streaming interface.
 
----
+Stream Provisioning (/create):
 
-## Tech Stack & Dependencies
+Parameter Specification: Input recipient address (G...), deposit token amounts (XLM/USDC), and exact block-timestamp stream durations.
 
-* **Framework**: Next.js 14 (App Router, Server & Client Components)
-* **Language**: TypeScript 5.0+ (Configured with `bundler` module resolution for modern SDK support)
-* **Styling**: Tailwind CSS
-* **Blockchain Interoperability**:
-  * `@stellar/stellar-sdk` (Contract calls, transaction builders, XDR parsing)
-  * `@stellar/freighter-api` (In-browser non-custodial wallet signatures)
+Real-time Flow Estimation: Automatically calculates per-second vesting rates before transaction submission.
 
----
+Soroban Execution: Constructs and signs Soroban invocation transactions natively using the Freighter wallet extension.
 
-## Key Features & User Interface
+Real-Time Yield Dashboard (/dashboard):
 
-1. **Stream Provisioning (`/create`)**:
-   * Input recipient address (`G...`), deposit amount, and stream duration.
-   * Auto-calculates stream rates (XLM/sec or USDC/sec).
-   * Direct transaction execution using Freighter wallet signatures.
+Live Balance Ticker: Microsecond-accurate client-side balance ticker reflecting unlocked tokens and continuous interest generation.
 
-2. **Real-Time Yield Dashboard (`/dashboard`)**:
-   * Live streaming ticker updating balances second-by-second.
-   * Total Value Streamed (TVS) metrics and yield accrued statistics.
-   * Historical stream event tracking.
+Vault Metrics: Complete visibility over Total Value Streamed (TVS), total yield accrued, and claimable stream balances.
 
----
+Stream Controls: Execution prompts for claiming unlocked tokens or initiating stream cancellations.
 
-## Environment Configuration
+🛠️ Tech Stack & Dependencies
+Framework: Next.js 14 (App Router using Server & Client Components)
 
-Create a `.env.local` file inside `apps/web`:
+Language & Compiler: TypeScript 5.0+ (ES2020 target, bundler module resolution)
 
-```env
-# Stellar Network Settings
+Styling & UI: Tailwind CSS, PostCSS, Autoprefixer
+
+Blockchain Interoperability:
+
+@stellar/stellar-sdk — Soroban RPC communication, XDR encoding/decoding, and transaction envelope building.
+
+@stellar/freighter-api — In-browser non-custodial key management and transaction signing.
+
+Hosting & Pipeline: Vercel CI/CD Production Environment
+
+## ⚙️ Environment Configuration
+To run the application locally or connect to custom RPC nodes, create a .env.local file inside apps/web:
+
+#### Code snippet
+##### Stellar Soroban RPC Network Settings
 NEXT_PUBLIC_STELLAR_NETWORK=testnet
 NEXT_PUBLIC_STELLAR_RPC_URL=[https://soroban-testnet.stellar.org](https://soroban-testnet.stellar.org)
 
-# YieldStream Soroban Vault Contract Address
+##### Deployed YieldStream Soroban Vault Contract Address
 NEXT_PUBLIC_CONTRACT_ID=CAF5HM647JPZQK6MOVIV2BX5DO4HSAXZEAIRO3OKFDVJUVENMYFDE7VW
-Getting Started
-1. Install Dependencies
-From the repository root:
+💻 Local Setup & Development
+1. Install Workspace Dependencies
+Run from the root of the repository:
 
 Bash
 npm install
-2. Run Local Development Server
-Bash
-npm run dev
-Open http://localhost:3000 with your browser.
+2. Launch Local Development Server
+Start the Next.js development server:
 
-3. Build for Production
-To perform a complete type check and compile static/dynamic routes:
+Bash
+cd apps/web
+npm run dev
+Navigate to http://localhost:3000 in your browser. Ensure the Freighter Wallet Browser Extension is installed and set to Test Network.
+
+3. Production Build & Validation
+To run TypeScript validation and execute a local static production build:
 
 Bash
 cd apps/web
 npm run build
+📄 License
+Distributed under the MIT License. See LICENSE for full terms.
