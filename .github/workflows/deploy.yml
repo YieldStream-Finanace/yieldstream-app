@@ -26,12 +26,13 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Install Dependencies
+      - name: Install Root Dependencies
+        run: npm install
+
+      - name: Install Web App Dependencies
         run: |
           if [ -d "apps/web" ]; then
             cd apps/web && npm install
-          else
-            npm install
           fi
 
       - name: Build Next.js Static Site
