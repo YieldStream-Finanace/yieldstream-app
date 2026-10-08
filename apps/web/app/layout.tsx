@@ -1,5 +1,10 @@
-import React from 'react';
-import './globals.css';
+import "./globals.css";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "YieldStream Protocol",
+  description: "Real-time continuous money streaming on Stellar Soroban",
+};
 
 export default function RootLayout({
   children,
