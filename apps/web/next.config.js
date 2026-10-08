@@ -2,6 +2,7 @@
 const nextConfig = {
   output: 'export',
   basePath: '/yieldstream-app',
+  trailingSlash: true,
   images: {
     unoptimized: true,
   },
