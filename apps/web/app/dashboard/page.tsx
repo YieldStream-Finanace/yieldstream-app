@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
+import StreamChart from './StreamChart';
 
 interface StreamData {
   id: string;
@@ -122,6 +123,9 @@ export default function DashboardPage() {
           </p>
         </div>
       </div>
+
+      {/* Analytics Visualizer Chart */}
+      <StreamChart />
 
       {/* Actions */}
       <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 flex justify-between items-center">
