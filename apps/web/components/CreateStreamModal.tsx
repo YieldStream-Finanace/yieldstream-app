@@ -1,7 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { Sparkles, X, ShieldCheck } from 'lucide-react';
+import { Sparkles, X, ShieldCheck, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { Address, nativeToScVal } from '@stellar/stellar-sdk';
+import { invokeSorobanContract } from '@/lib/soroban';
 
 interface CreateStreamModalProps {
   isOpen: boolean;
@@ -13,14 +16,37 @@ export function CreateStreamModal({ isOpen, onClose }: CreateStreamModalProps) {
   const [amount, setAmount] = useState('');
   const [alias, setAlias] = useState('');
   const [category, setCategory] = useState('payroll');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // 1. Invoke Soroban stream creation contract call via Stellar CLI bindings
-    // 2. Save stream alias & metadata to apps/indexer DB
-    onClose();
+    setIsSubmitting(true);
+
+    try {
+      toast.loading('Preparing Soroban contract transaction...');
+
+      // FIXED: Use nativeToScVal for robust i128 serialization
+      const args = [
+        new Address(recipient).toScVal(),
+        nativeToScVal(BigInt(amount), { type: 'i128' }),
+      ];
+
+      // Invoke the 'create_stream' method on the deployed vault contract
+      const txHash = await invokeSorobanContract('create_stream', args);
+
+      toast.dismiss();
+      toast.success(`Stream deployed on Soroban Testnet! Tx: ${txHash.slice(0, 8)}...`);
+      
+      setIsSubmitting(false);
+      onClose();
+    } catch (error: any) {
+      toast.dismiss();
+      console.error('Soroban Stream Creation Error:', error);
+      toast.error(error.message || 'Failed to deploy stream via Soroban contract.');
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -30,7 +56,11 @@ export function CreateStreamModal({ isOpen, onClose }: CreateStreamModalProps) {
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             Create Drip Stream <Sparkles size={18} className="text-indigo-400" />
           </h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-white transition">
+          <button 
+            onClick={onClose} 
+            disabled={isSubmitting}
+            className="text-slate-400 hover:text-white transition disabled:opacity-50"
+          >
             <X size={20} />
           </button>
         </div>
@@ -97,10 +127,20 @@ export function CreateStreamModal({ isOpen, onClose }: CreateStreamModalProps) {
           <div className="pt-2">
             <button
               type="submit"
-              className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-semibold shadow-lg shadow-indigo-600/25 transition-all text-sm flex items-center justify-center gap-2"
+              disabled={isSubmitting}
+              className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-xl font-semibold shadow-lg shadow-indigo-600/25 transition-all text-sm flex items-center justify-center gap-2 cursor-pointer"
             >
-              <ShieldCheck size={18} />
-              Deploy Stream on Soroban Testnet
+              {isSubmitting ? (
+                <>
+                  <Loader2 size={18} className="animate-spin" />
+                  Broadcasting to Soroban...
+                </>
+              ) : (
+                <>
+                  <ShieldCheck size={18} />
+                  Deploy Stream on Soroban Testnet
+                </>
+              )}
             </button>
           </div>
         </form>
