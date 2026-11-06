@@ -9,9 +9,12 @@ import {
   ArrowUpRight, 
   Sparkles, 
   ExternalLink,
-  Activity
+  Activity,
+  Plus
 } from 'lucide-react';
 import StreamChart from './StreamChart';
+import { CreateStreamModal } from '@/components/CreateStreamModal';
+import { WalletModal } from '@/components/wallet-modal';
 
 interface StreamData {
   id: string;
@@ -37,8 +40,11 @@ const DEMO_STREAM: StreamData = {
 
 export default function DashboardPage() {
   const [walletConnected, setWalletConnected] = useState(false);
+  const [publicKey, setPublicKey] = useState<string | null>(null);
   const [activeStream] = useState<StreamData>(DEMO_STREAM);
   const [streamedAmount, setStreamedAmount] = useState(250.45);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
 
   // Sub-second high-precision live balance increment for the streaming effect
   useEffect(() => {
@@ -47,7 +53,6 @@ export default function DashboardPage() {
     }, 100);
     return () => clearInterval(timer);
   }, [activeStream.ratePerSec]);
-
 
   const handleClaimYield = () => {
     toast.promise(
@@ -60,35 +65,24 @@ export default function DashboardPage() {
     );
   };
 
-  const handleConnectWallet = async () => {
-    try {
-      toast.info('Connecting to Freighter Wallet...');
-      
-      // 1. In a real environment, retrieve publicKey using freighter-api:
-      // const publicKey = await getPublicKey();
-      const mockPublicKey = 'GAY3STreamerTestnetAddress2026';
-
-      // 2. Authenticate with backend database route
-      const res = await fetch('/api/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ publicKey: mockPublicKey }),
-      });
-
-      if (!res.ok) throw new Error('Backend auth failed');
-
-      setWalletConnected(true);
-      toast.success('Freighter Wallet connected & authenticated!');
-    } catch {
-      toast.error('Failed to connect Freighter. Please check extension.');
+  const handleConnectWalletClick = () => {
+    if (walletConnected && publicKey) {
+      toast.info(`Connected Account: ${publicKey.slice(0, 4)}...${publicKey.slice(-4)}`);
+      return;
     }
+    setIsWalletModalOpen(true);
   };
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-6 lg:p-10">
-      <div className="max-w-6xl mx-auto space-y-8">
+    <div className="min-h-screen bg-slate-950 text-slate-100 p-6 lg:p-10 relative overflow-hidden">
+      {/* Background 2030 Neon Glow Orbs */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="max-w-6xl mx-auto space-y-8 relative z-10">
         
-        {/* Header & Wallet Section */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-900/60 border border-slate-800/80 p-6 rounded-2xl backdrop-blur-xl shadow-2xl">
+        {/* Header & Action Bar */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-900/60 border border-slate-800/80 p-6 rounded-2xl backdrop-blur-2xl shadow-2xl">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full">
@@ -104,13 +98,25 @@ export default function DashboardPage() {
               Continuous liquidity streaming & real-time vault yield compounding on Stellar.
             </p>
           </div>
-          <button
-            onClick={handleConnectWallet}
-            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white rounded-xl shadow-lg shadow-indigo-500/25 transition-all font-medium text-sm border border-indigo-500/30"
-          >
-            <Wallet size={16} />
-            {walletConnected ? 'Connected (Testnet)' : 'Connect Freighter'}
-          </button>
+
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white rounded-xl shadow-lg shadow-indigo-600/25 transition-all font-medium text-sm border border-indigo-500/30 group cursor-pointer"
+            >
+              <Plus size={16} className="group-hover:rotate-90 transition-transform duration-300" />
+              Create New Stream
+            </button>
+            <button
+              onClick={handleConnectWalletClick}
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-slate-800 to-slate-900 hover:from-slate-700 hover:to-slate-800 text-white rounded-xl shadow-lg shadow-slate-900/50 transition-all font-medium text-sm border border-slate-700/60 cursor-pointer"
+            >
+              <Wallet size={16} className="text-indigo-400" />
+              {walletConnected && publicKey 
+                ? `${publicKey.slice(0, 4)}...${publicKey.slice(-4)}` 
+                : 'Connect Freighter'}
+            </button>
+          </div>
         </div>
 
         {/* Demo Banner Notification */}
@@ -187,12 +193,12 @@ export default function DashboardPage() {
         </div>
 
         {/* Analytics Visualizer Chart */}
-        <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 backdrop-blur-xl">
+        <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 backdrop-blur-xl shadow-xl">
           <StreamChart />
         </div>
 
         {/* Actions Section */}
-        <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 backdrop-blur-xl">
+        <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 backdrop-blur-xl shadow-xl">
           <div>
             <h3 className="font-bold text-lg text-white">Claim Unlocked Stream Funds</h3>
             <p className="text-xs text-slate-400 mt-1 max-w-xl">
@@ -201,7 +207,7 @@ export default function DashboardPage() {
           </div>
           <button
             onClick={handleClaimYield}
-            className="w-full sm:w-auto px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-semibold shadow-lg shadow-emerald-600/20 transition-all text-sm flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-semibold shadow-lg shadow-emerald-600/20 transition-all text-sm flex items-center justify-center gap-2 cursor-pointer"
           >
             <span>Claim Unlocked Funds</span>
             <ExternalLink size={16} />
@@ -209,6 +215,21 @@ export default function DashboardPage() {
         </div>
 
       </div>
+
+      {/* Modals */}
+      <CreateStreamModal 
+        isOpen={isCreateModalOpen} 
+        onClose={() => setIsCreateModalOpen(false)} 
+      />
+
+      <WalletModal 
+        isOpen={isWalletModalOpen}
+        onClose={() => setIsWalletModalOpen(false)}
+        onConnected={(key) => {
+          setPublicKey(key);
+          setWalletConnected(true);
+        }}
+      />
     </div>
   );
 }

@@ -11,12 +11,14 @@
   "dependencies": {
     "@stellar/freighter-api": "^6.0.1",
     "@stellar/stellar-sdk": "^13.0.0",
+    "drizzle-orm": "^0.45.4",
+    "lucide-react": "^1.16.0",
     "next": "^14.2.0",
+    "postgres": "^4.1.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
     "recharts": "^3.10.1",
-    "sonner": "^2.0.8",
-    "lucide-react": "^1.16.0"
+    "sonner": "^2.0.8"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
